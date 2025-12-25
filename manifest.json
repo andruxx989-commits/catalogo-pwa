@@ -1,0 +1,8 @@
+{
+  "name": "Mi Catálogo",
+  "short_name": "Catálogo",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#111111",
+  "background_color": "#ffffff"
+}

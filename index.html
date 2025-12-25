@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Catálogo</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#111">
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 6px 14px rgba(0,0,0,.12);
+      transition: transform .2s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .card img {
+      width: 100%;
+      height: 190px;
+      object-fit: cover;
+      display: block;
+    }
+    .card p {
+      margin: 8px;
+      font-size: 14px;
+      text-align: center;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📸 Catálogo</h1>
+<div class="grid" id="catalogo"></div>
+
+<script>
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyfW_TpkpBrRvJLeKeZfBuCJXjKKDXiORng98GpRHMZG24kkbmJbZTr6FNS46V0Wxuv/exec";
+
+fetch(API_URL)
+  .then(r => r.json())
+  .then(data => {
+    const grid = document.getElementById("catalogo");
+
+    data.items.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <img src="${item.img}" loading="lazy">
+        <p>${item.nombre}</p>
+      `;
+      grid.appendChild(card);
+    });
+  });
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+
+</body>
+</html>
