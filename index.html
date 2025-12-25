@@ -3,78 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mi Catálogo</title>
+  <title>Catálogo Profesional</title>
 
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#111">
+  <meta name="theme-color" content="#0f172a">
+
+  <!-- FUENTE MODERNA -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 16px;
-      background: #f4f4f4;
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
     }
-    h1 {
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(180deg, #020617, #0f172a);
+      color: var(--text);
+    }
+    header {
+      padding: 24px 16px;
       text-align: center;
-      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    header h1 {
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+    header p {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .container {
+      max-width: 1280px;
+      margin: auto;
+      padding: 24px 16px 80px;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
     }
     .card {
-      background: #fff;
+      background: var(--card);
       border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 6px 14px rgba(0,0,0,.12);
-      transition: transform .2s;
+      box-shadow: 0 15px 30px rgba(0,0,0,.35);
+      cursor: pointer;
+      transition: transform .25s ease, box-shadow .25s ease;
     }
     .card:hover {
-      transform: scale(1.03);
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 25px 50px rgba(0,0,0,.5);
     }
     .card img {
       width: 100%;
-      height: 190px;
+      height: 240px;
       object-fit: cover;
       display: block;
     }
-    .card p {
-      margin: 8px;
-      font-size: 14px;
-      text-align: center;
+    .card .info {
+      padding: 12px 14px 16px;
+    }
+    .card .info p {
+      margin: 0;
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 500;
       word-break: break-word;
+    }
+
+    /* MODAL */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,.92);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal img {
+      max-width: 92vw;
+      max-height: 92vh;
+      border-radius: 20px;
+      box-shadow: 0 40px 80px rgba(0,0,0,.7);
+    }
+    .modal.active {
+      display: flex;
+    }
+
+    footer {
+      text-align: center;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, transparent, rgba(2,6,23,.9));
     }
   </style>
 </head>
 <body>
 
-<h1>📸 Catálogo</h1>
-<div class="grid" id="catalogo"></div>
+<header>
+  <h1>Catálogo Profesional</h1>
+  <p>Toca una imagen para ver en grande</p>
+</header>
+
+<div class="container">
+  <div class="grid" id="catalogo"></div>
+</div>
+
+<footer>
+  © Tu Catálogo Digital
+</footer>
+
+<!-- MODAL PARA VER IMAGEN COMPLETA -->
+<div class="modal" id="modal">
+  <img id="modalImg" />
+</div>
 
 <script>
-const API_URL =
-"https://script.google.com/macros/s/AKfycbyfW_TpkpBrRvJLeKeZfBuCJXjKKDXiORng98GpRHMZG24kkbmJbZTr6FNS46V0Wxuv/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyfW_TpkpBrRvJLeKeZfBuCJXjKKDXiORng98GpRHMZG24kkbmJbZTr6FNS46V0Wxuv/exec";
+
+const grid = document.getElementById("catalogo");
+const modal = document.getElementById("modal");
+const modalImg = document.getElementById("modalImg");
 
 fetch(API_URL)
   .then(r => r.json())
   .then(data => {
-    const grid = document.getElementById("catalogo");
-
     data.items.forEach(item => {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
         <img src="${item.img}" loading="lazy">
-        <p>${item.nombre}</p>
+        <div class="info">
+          <p>${item.nombre}</p>
+        </div>
       `;
+      card.onclick = () => {
+        modalImg.src = item.img;
+        modal.classList.add("active");
+      };
       grid.appendChild(card);
     });
+  })
+  .catch(err => {
+    grid.innerHTML = "<p style='color:#f00; text-align:center;'>Error cargando catálogo.</p>";
+    console.error(err);
   });
-</script>
 
-<script>
+modal.onclick = () => {
+  modal.classList.remove("active");
+  modalImg.src = "";
+};
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 }
